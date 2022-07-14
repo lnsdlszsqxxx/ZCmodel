@@ -1,0 +1,323 @@
+              USER'S GUIDE FOR THE ZEBIAK/CANE COUPLED MODEL
+             _______________________________________________
+
+     Following is a brief description of the Zebiak and Cane 1987 (MWR;
+hereafter ZC) model code and how to use it.  The governing equations of the
+model are presented in ZC, and will not be reviewed here.  The model computes
+anomalies of atmospheric and oceanic fields, relative to a specified monthly
+mean climatology, for the tropical Pacific region.
+
+     Several of the model parameters are trivially adjustable (these are 
+reviewed below, but the time step and spatial grids cannot be adjusted without 
+some recoding.  The standard value time step is (about) 10 days;  the standard 
+value grid for ocean dynamics is 2 degrees longitude by .5 degrees latitude;  
+the standard grid for SST physics and atmosphere model is 5.625 degrees 
+longitude by 2 degrees latitude.  
+
+     The model uses an unorthodox time convention in which time is measured
+in "months" subsequent to January 1 1960.  These "months" are defined to be
+exactly 1/12 of a year in duration, and they therefore differ slightly from the
+actual calendar months, which have variable length by up to 3 days.  However,
+in both the model convention and the real calendar, 12 months corresponds to
+exactly one year.  The time 0.5 corresponds to mid-January, 1960 in the model
+convention.  The time 12.5 corresponds to mid-January, 1961.  The time 330.5
+corresponds to mid-July 1987, etc.
+
+     The makefile "makezeqfc1" can be used to generate the object files and
+executable file "zeqfc1" on any standard unix system.  It is assumed that
+the IMSL library is available; makezeqfc1 invokes this with the -limsl flag - 
+on different systems this should be modified to provide proper linking to IMSL.
+
+     Several data files are necessary to run the coupled model.  These include:
+
+     rcwndmn.data - climatological monthly mean surface winds for trop. Pac.
+     rcdivmn.data - climatological monthly mean surface wind divergence
+     rcsstmn.data - climatological monthly mean sea surface temperature
+     wem.zeb - simulated climatological monthly mean oceanic upwelling
+     uv.zeb - simulated climatological montly mean surface hor. currents
+
+These files are read in binary form in subroutine SETUP2 (openfl.f).  In addition to
+these climatological files, an input data file provides desired parameter
+values and other information to the coupled model.  A sample is found in the 
+file fctest.data.  Each input line, in sequential order, is described below:
+
+1. case title.  This is just an ascii string that will appear on the standard
+output.
+
+2. filename of history input file.  The program will open this file and 
+attempt to read from it in order to initialize the model, if parameter NSTART 
+is > 0.
+
+3. filename of history output file.  Output will be written to this file at 
+the very end of model run, and possibly at other times (see NTAPE).  The
+information is sufficient to allow another model run to restart.
+
+4.  NSTART; controls initialization.  
+If NSTART=0, new run. the coupled model starts up from a state of no anomalies.  In this case an imposed anomaly of some sort is needed to start up the model (see discussion under NIC).  
+If NSTART=2, continue run. initial conditions are read from history input file (line 1) and time is set to the value corresponding to those conditions in the history file. 
+If NSTART=3, continue run. history input is also obtained from the history file, but time is reset to the value specified in the TZERO parameter.
+
+5.  TFIND;  when history file is being used (NSTART>0), TFIND specifies the
+time being sought for initialization.  The history file will be searched
+until the time TFIND is located, and initial fields will be gotten for that
+time to start the coupled run.
+
+6.  NX;  the number of longitudinal v-points in ocean dynamics model.  
+According to the model's staggered grid, the number of u and h points is one
+greater (NX+1). Though the ocean dynamics can be run with other values of NX, 
+the SST physics assumes the standard value of 78.
+
+7.  NY;  the number of latitudinal u and h points in the ocean dynamics model.
+The number of v points is one greater (NY+1). SST physics assumes the standard 
+value of 115 for NY.
+
+8.  HEQUIV;  the oceanic equivalent depth.  SST physics assumes the standard
+value of 86 (cm.).
+
+9.  TZERO;  the initial time for the run (ignored if NSTART=2).
+
+10. TENDD;  the final time for the run.  Must be larger than TZERO (larger
+than TFIND if NSTART=2).
+
+11.  DTD;  the time step in "months".  SST physics assumes the standard value
+of .3333334.
+
+12.  XWD;  westernmost limit of ocean basin (a u/h point).  SST physics assumes
+the standard value of 124 (degrees E).
+
+13.  XED;  easternmost limit of ocean basin (a u/h point).  SST physics assumes
+the standard value of 280 (80 degrees W).
+
+14.  YSD;  southernmost limit of the ocean basin (a v point).  SST physics 
+assumes the standard value of -28.75 (28.75S).
+
+15.  YND;  northernmost limit of the ocean basin (a v point).  SST physics 
+assumes the standard value of 28.75 (28.75N).
+
+16.  TDECAY;  the timescale of interior ocean dissipation in months.  Standard 
+value is 30.
+
+17.  TPLMIN;  earliest time that history output will be written.
+
+18.  NPRINT;  interval, in timesteps, between diagnostic output lines for
+ocean dynamics written to standard output. 
+
+19.  NSEG;  the number of rectangular subsections making up ocean model
+basin.  SST physics assumes standard value of 1 (ocean basin is a simple
+rectangle).
+
+20.  YNORTH;  should be the same as YND for NSEG=1.
+
+21.  YSOUTH;  should be the same as YSD for NSEG=1.
+
+22.  XWEST;  should be the same as XWD for NSEG=1.
+
+23.  NTAPE;  if 0, write history output only at last timestep of run (written
+to file identified on line 2 of data file.).  If NTAPE>0, history output is
+written every NTAPE timesteps, provided time variable is greater than TPLMIN.
+
+24.  NREWND;  controls rewinding of history tape.  Always has the form of a
+two digit integer IJ, where both I and J are either 0 or 1.  If I=1, history
+input tape is rewinded after each read, whereas if I=0, history input is not
+rewinded.  If J=1, history output file is rewinded after each write (so 
+subsequent writes overwrite each other). J=0 precludes rewinding of history
+output.
+
+25.  NATM;  coupling paramter.  NATM=2 implies ocean and atmosphere are
+coupled (no other value should be used without code changes).
+
+26.  IC2;   a parameter that could be used to specify additional types of
+initialization (e.g., overwriting the history input with data from some other
+source, etc).  At present, the parameter is not active, but see zeq1main.f.
+
+27.  GAM1;  parameter affecting strength of mean upwelling advection term in
+SST equation.  Standard value is .75.
+
+28.  GAM2;  parameter affecting strength of anomalous upwelling advection tern
+in SST equation.  Standard value is .75. 
+
+29.  TDA1;  parameter affecting amplitude of subsurface temperature anomaly
+for positive h perturbations. Standard value is 28.
+
+30.  TDB1;  parameter affecting the nonlinearity of subsurface temperature
+anomaly for positive h perturbations. Standard value is 1.25.
+
+31.  TDA2;  parameter affecting amplitude of subsurface temperature anomaly
+for negative h perturbations. Standard value is -40.
+
+32.  TDB2;  parameter affecting the nonlinearity of subsurface temperature
+anomaly for negative h perturbations. Standard value is 3.0.
+
+33.  TLOSS; parameter affecting surface heat flux (a linear damping on 
+SST anomaly).  Standard value is .98, corresponding to a 125 day decay time.
+
+34.  ALPHA; parameter controlling strength of SST-related component of 
+atmospheric heating.  Standard value is 1.6.
+
+35.  EPS;   atmospheric friction parametea.  Standard value is 0.3,
+corresponding to about a 1 day damping time.
+
+36.  BETA;  parameter controlling strength of convergence feedback portion
+of atmospheric heating. Standard value is .75.
+
+37.  CTOL;  threshold value for maximum differences in wind divergence between
+successive atmospheric model iterations.  If this value is exceeded, another 
+iteration is done (provided the number of iterations has not exceeded IMAX).
+Standard value is .15.
+
+38.  IMIN;  the minimum number of atmospheric model iterations allowed (not
+counting the first).  Standard value is 1.
+
+39.  IMAX;  the maximum number of atmospheric model iterations allowed (not
+counting the first). Standard value is 2.
+
+40.  ISTEP; logical parameter controlling whether full anomaly field is
+recomputed at each timestep (false), or if the anomaly field is only 
+incremented for some timesteps (true). Standard value is .true.
+
+41.  TCUT;  a time value after which external wind forcing (used to perturb
+the zero anomaly state when no history input is being used) is removed. Only
+used is NIC > 0.
+
+42.  TSEED; a real number used to initialize a random number generator routine
+in runs where external random forcing is added (NIC=1 only).
+
+43.  TAMP1; parameter governing the strength of external stress perturbation.
+
+44.  TAMP2; additional parameter governing external stress perturbation if
+NIC=1.
+
+45.  JLEFT; westernmost limit (expressed as an array index) of external stress
+perturbation.
+
+46.  JRT;   easternmost limit (expressed as an array index) of external stress
+perturbation.
+
+47.  ITOP;  northernmost limit (expressed as an array index) of external stress
+perturbation.
+
+48.  IBOT;  southernmost limit (expressed as an array index) of external stress
+perturbation.
+
+49.  NIC;   parameter governing external stress perturbations.  For NIC=0
+there is no external stress perturbation.  For NIC=1 a stochastic external 
+zonal stress is added within the limits imposed by jleft,jrt,itop,ibot, with
+characteristics governed by tamp1,tamp2.  For NIC=4, a uniform zonal wind
+stress patch is imposed between the same limits, for times up to TCUT, after
+which there is no external forcing.
+
+______________________________________________________________________________
+
+
+Model variables.
+
+Following is a list of the more important model arrays organized by grid type 
+and convention. The first are ocean arrays, with the index I corresponding to
+longitude and running from west to east, and the index J corresponding to 
+latitude, and running from south to north.
+
+1. AKB(I) I=1,NX+1 
+     describes the amplitude of oceanic Kelvin wave, which is updated 
+     analytically by the ocean dynamics model.
+
+2. PHIK(J) J=1, NY 
+     gives the meridional structure of the oceanic Kelvin mode.
+
+3. UB(J,I), J=1,NY; I=1,NX+1
+     the Rossby component of depth integrated zonal current between the 
+     thermocline and surface.  To get the entire depth integrated zonal
+     current anomaly one must add the Kelvin component as follows:
+          U(J,I)=UB(J,I)+AKB(I)*PHIK(J).  
+     Units of UB and U as defined are nondimensional, but for the standard
+     parameters of the model, multiplication by 2.0 gives currents is cm/s.
+
+4. V(J,I), J=1,NY+1; I=1, NX
+     the depth integrated meridional current anomaly between the thermocline 
+     and surface. For standard parameters, multiplication by 2.0 gives cm/s.
+
+5. HB(J,I), J=1, NY; I=1,NX+1
+     the Rossby component of upper layer depth anomaly.  To get the entire
+     upper layer depth anomaly, one must add the Kelvin component as follows:
+           H(J,I)=HB(J,I)+AKB(I)*PHIK(J).
+     Units of HB and H as defined are in meters.
+
+
+The following arrays have index I corresponding to longitude and running from
+west to east, and the index J corresponding to latitude and running from
+north to south. I=1 corresponds to 101.25E, with successive points 5.625 
+degrees apart (the points within the standard ocean basin are i=6, 32,
+corresponding to 129.375E and 84.375W respectively). J=1 corresponds to 29N,
+with successive points 2 degrees apart (J=30 corresponds to 29S).
+
+6.  TO(J,I), J=1, 30; I=1, 34
+      SST anomaly field.  Nonzero values are found only beteen i=6,32 and
+      j=6, 25 (SST anomaly is not computed poleward of 19N and 19S). Units 
+      are degrees C.
+
+7.  UO(J,I), J=1,30; I=1, 34
+      surface zonal wind anomaly, in units of m/s.
+
+8.  VO(J,I), J=1,30; I=1,34
+      surface meridional wind anomaly, in units of m/s.
+
+9.  DO(J,I), J=1,30; I=1, 34
+      surface wind divergence anomaly. Multiplication by 0.9 gives units of
+      10**-6/s.
+
+10. QF(J,I), J=1,30; I=1, 34
+      nondimensional atmospheric heating anomaly.  Division by 52.3
+      gives heating rate per unit mass (m**2/s**3).
+
+11. US(J,I), J=1,30; I=1, 34
+      surface layer zonal current anomaly in cm/s.  Nonzero values only for 
+      i=6,32 and j=6, 25.
+
+12. VS(J,I), J=1,30; I=1, 34
+      surface layer meridional current anomaly in cm/s.  Nonzero values only
+      for i=6,32 and j=6, 25.
+
+13. WP(J,I), j=1, 30; I=1, 34
+      upwelling velocity at base of surface layer (50m) in units of 
+      10**-3 cm/s. Nonzero values only for i=6,32; j=6,25.
+
+14. H1(J,I), j=1, 30; I=1, 34
+      oceanic upper layer depth averaged onto coarser grid.  Units are m,
+      meaningful domain is i=6,32; j=6,25.
+
+15. U1(J,I), J=1, 30; I=1, 34
+      depth averaged zonal current (see UB above), averaged onto coarser grid.
+      Meaningful domain is i=6,32; j=6,25.
+
+16. V1(J,I), J=1, 30; I=1, 34
+      depth averaged meridional current (see V above), averaged onto coarser
+      grid. Meaningful domain is i=6,32; j=6,25.
+
+17. TT(J,I), J=1, 30; I=1, 34
+      total SST field in degrees C. Meaningful domain is i=6,32; j=6,25.
+
+
+The following array has index I corresponding to longitude and running from
+west to east, and the index J corresponding to latitude and running from
+south to north. I=1 corresponds to 101.25E, with successive points 5.625 
+degrees apart (the points within the standard ocean basin are i=6, 32,
+corresponding to 129.375E and 84.375W respectively). J=1 corresponds to 29S,
+with successive points 2 degrees apart (J=30 corresponds to 29N).
+
+18. HTAU(I,J,K), I=1, 34; J=1, 30; K=1, 2
+      surface wind stress anomaly, in dy/cm/cm. The third index corresponds
+      to vector component, with K=1 denoting zonal and K=2 denoting meridional
+      component.
+
+______________________________________________________________________________
+
+
+At least one scalar variable is of interest:
+
+1. TD;   time variable in the coupled model
+
+______________________________________________________________________________
+
+Output for these variables can be obtained by inserting write statements
+in the main program (zeq1main.f) at the indicated position.
+
+

@@ -1,0 +1,21 @@
+       COMMON /VALS/ AK(0085),AKB(0085),BK(0085),HB(0117,0085),         
+     A  UB(0117,0085),U(0117,85),H(0117,85),V(0117,0085),           
+     A  F(0117,0085),G(0117,0085)                                       
+CQ   A ,Q(0117,0085)                                                    
+                                                                        
+       COMMON /ARRAYS/ A(0117),B(0117),C(0117),D(0117),PHIK(0117),      
+     A  R1(0117),R3(0117),YY(0117),PONE(0117),PNORM(0117),              
+     A  GINT(0117),HEADER,
+     A  YSOUTH(04),YNORTH(04),XWEST(04),                                
+     A  JSOUTH(04),JNORTH(04),IWEST(04),IWESTX,KTYPE(04),KTYPEX,        
+     A  NSTAR(04),OFD(04),DFD(04),STK(04),TR(04),SONEK(04),SNORM(04),   
+     A  ROSS(04),ABC(04),UBNDY(0117,4),HBNDY(0117,4)
+                                                                        
+      CHARACTER*1 HEADER(80)
+       COMMON /SCALS/ ADY2,ALPHA,ALPHDT,ASQM,ASQMI,ASQP,                
+     A                DT,DX,DY,DYINV,DYH,TPLMIN,HK,NX,NY,               
+     A                NXP,NYP,PI,SQRT2,TD,TZERO,XE,YN,YS,               
+     A                OMEGA,ENDT,RALPHA,IALPHA,ISTART,                  
+     B  HEQUIV,XWD,XED,YSD,YND,CWAVE,ELEQ,TEQ,TEQM,TENDD,DTD,DXD,DYD,
+     C  TDECAY,WSCALE,RFRIC,EFRIC,NT,NTIMES,NPRINT,
+     D  NSEG,NTAPE,NREWND,NSTART,NATM,NATMR

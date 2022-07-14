@@ -1,0 +1,19 @@
+# This makefile is for building the optimization of zcmodel 
+#Macro definition:
+#OBJS= $(SRC:.f=.o)
+OBJS=nrdhist.o openfl.o setup.o setup2.o initdat.o constc.o cforce.o ztmfc1.o mloop.o akcalc.o bndary.o tridag.o uhcalc.o uhinit.o ssta.o fft2c.o zeq1main.o 
+
+FC=gfortran #it was f77
+FFLAGS= -byteswapio -O2 -pc 64 #no flag for gfortran
+PRG=a.out
+
+#Suffix definition:
+.SUFFIXES:.o .f .common
+
+# Second-level definition: 
+.f.o: 
+	$(FC) -c $<  zeq.common
+
+# Terget definition:
+$(PRG): $(OBJS)
+	$(FC) -o  $(PRG)  $(OBJS)

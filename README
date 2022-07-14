@@ -1,0 +1,125 @@
+how to prescribe wind stress?
+according to ZCdoc, HTAU is wind stress anomaly
+according to ztmfc1.f, HTAU seems the total wind stress
+405       HTAU(J,I1,1)=(A1*AT-A3*AM)*.0329+UT(I,J)
+406       HTAU(J,I1,2)=(A2*AT-A4*AM)*.0329
+I used anomaly (tauxy_ano.bin) to prescribe HTAU, successed
+
+90 year test run:
+just run zeq1main.f, modify the fctest.data file
+in this case, the first 5 months ocean forced by 0.25m/s uniform westerly wind anomaly in a small region defined by JLEFT JRT ITOP IBOT, after 5 months there is no external wind (NIC=4,TCUT=5,TAMP1=0.25)
+100 model years take 10s CPU time
+
+how to output var?
+sample output code is in zeq1main.f
+sample plotting code is the ncl file
+set up the model in fctest.out:
+TZERO the initial month for the run, 0.5 means middle of the month
+TENDD the final month for the run. 
+NTAPE=3 means write hist file every 3 steps, i.e. monthly output, not the
+monthly mean but the last step in each month.
+NTAPE=0 means only one output at the end
+NT is the current number of step, counter in main
+NTIMES is the total steps, calculated from TZERO and TENDD
+TPLMIN: earliest time that history output will be written. see fctest.data
+
+where is heat flux, wind stress, bottom temperature in this model?
+no input heat flux, only newton's cooling 
+wind stress is computed in ztmfc1.f using the relationship between wind stress and wind speed
+  HTAU(J,I1,1)=(A1*AT-A3*AM)*.0329+UT(I,J)
+  HTAU(J,I1,2)=(A2*AT-A4*AM)*.0329
+HTAU is used by cforce.f
+no bottom temperature, only subsurface temperature, TD in ssta.f
+Tsub is not constant
+
+how ocean impacts the air?
+Through SST, see Eq. A1-3 (ZC1987), each step u v p determined by SST only
+uvp does not revolute in air model
+
+how air impacts ocean?
+only throught HTAU
+u v determined by SST and last convergence(Qs Ql in Eq A3), and inturn impact the HTAU, hence force the ocean (A4-5 in ZC1987)
+HTAU(ztmfc1.f)->HT(cforce.f)->G,F->T1T2T3(uhcalc.f)->R->u h
+
+There is no heat flux, how does ocean get energy?
+This is anomaly model, (I guess) there is only re-distribution of SSTA
+newton's cooling is like restoring boundary condition at the climatology SST
+
+for model details, see ZC1987 and someone's PhD thesis
+
+data files are in binary format for an SGI machine: i.e. big-endian
+
+big_endian and little_endian:
+(1)gfortran -fconvert=big-endian [native,swap,little-endian,big-endian]
+(2)pgi compiler: -byteswapio
+ps: another way is to change the code: open(...convert='big_endian'...)
+
+The file fctest.data can be used to run a test case;  
+
+another test run: run the model for 90 years and compare with ZC1987 Fig 1
+
+read user's guide in ZCdoc, including model domain, all parameters(listed in fctest.data), variables, data files (rcwndmn.data,rcdivmn.data,rcsstmn.data,wem.zeb,uv.zeb, see openfl.f)
+
+time step: 10 days
+
+ocn basin(ocean dynamics grid):
+NX=78,NY=115
+2*0.5 (lon*lat)
+124E~280E, 28.75S~28.75N
+2+1/2 layers
+Tsub see zebiak cane 1987 Eq. A13
+
+ocn SST(NY,NX) and other vars(the coarser sst grid):
+NX=34,NY=30
+5.625*2 (lon*lat)
+101.25E~286.875E, 29S~29N
+*NOTE* longitude west to east, latitude from north to south
+some other vars latitude from south to north, see ZCdoc
+Nonzero values are found only beteen i=6,32,j=6,25, 129.375E~275.625E(84.375W)，19S-19N
+
+atm:
+NX=34,NY=30
+5.625*2 (lon*lat)
+101.25E~286.875E, 29S~29N
+1 layer
+constant model
+
+for HTAU(34,30,2), for others VAR(30,34)
+UO VO are wind speed m/s
+HTAU is wind stress dy/cm2
+WM(30,34,2,12) is 12 month wind stress
+
+fctest.data and fctest.out are formatted files, can be read by vim
+setup.f and setup2.f read and write parameters in fctest.data
+
+forcedmain.f: another testrun forced by prescribed NCEP forcing, tauxy_ano_NCEP.bin is forcing data for 62 yr (1950.1-2011.12)
+
+there are 2 sets of codes: zeq1main.f and forcedmain.f
+other needed codes shown in makefile_zeq1main
+
+zeq1main.f is coupled ZC
+
+forcedmain.f is forced ZC with prescribed wind stress
+
+fixed warning in ztmfc1.f and cforce.f, marked by liang
+
+how to run the coupled case:
+(1)make -f makefile_zeq1main  #don't miss -f
+   or
+bash compile_zeq1main (I prefer this way,I created this compile bash file)
+(2) ./a.out
+
+how to run the forced case:
+(1)bash compile_forcedmain
+(2)./a.out
+
+about data file size:
+49056 rcdivmn.data
+49056 rcsstmn.data
+98016 rcwindmn.data
+sequential method adds 8 extra bytes (4 at the head and 4 at the tail) for each write and read
+49056=(30*34*4+8)*12
+98016=(30*34*2*4+8)*12
+I created the wind stress data tauxy_ano_NCEP.bin, direct access size=34*30*2*744*4
+
+liang 2022.7.13

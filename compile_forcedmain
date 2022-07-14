@@ -1,0 +1,2 @@
+#! /bin/bash
+gfortran -fconvert=big-endian -o a.out nrdhist.f openfl.f setup.f setup2.f initdat.f constc.f cforce.f ztmfc1.f mloop.f akcalc.f bndary.f tridag.f uhcalc.f uhinit.f ssta.f fft2c.f forcedmain.f
