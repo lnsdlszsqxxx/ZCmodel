@@ -108,6 +108,7 @@ how to run the coupled case:
    or
 bash compile_zeq1main (I prefer this way,I created this compile bash file)
 (2) ./a.out
+(3) NIC cannot be 0
 
 how to run the forced case:
 (1)bash compile_forcedmain
