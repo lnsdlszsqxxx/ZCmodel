@@ -127,8 +127,8 @@ indices&time=yyyyfrac
 
 ;------------------------------------------------------------
 print("plot obs&model nino index")
-;wks = gsn_open_wks("x11","sst")   ;Open a workstation.
-wks = gsn_open_wks("pdf","NINO3_CPD_a1.6_a1.58") ;Open a workstation.
+wks = gsn_open_wks("x11","sst")   ;Open a workstation.
+;wks = gsn_open_wks("pdf","NINO3_CPD_a1.6_a1.58") ;Open a workstation.
 gsn_define_colormap(wks,"NCV_blue_red")
 ;gsn_define_colormap(wks,"grads_rainbow")
 plot = new(3,graphic)

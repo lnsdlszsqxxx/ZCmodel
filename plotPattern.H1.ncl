@@ -51,11 +51,12 @@ H1@long_name = "Upper ocean depth anom"
 H1@units     = "Unit meter"
 
 printMinMax(H1,0)
+exit
 
 ;Tclmt=dim_avg_n_Wrap(T,0)
 
-wks = gsn_open_wks("x11","sst")   ;Open a workstation.
-;wks = gsn_open_wks("pdf","./H1_evolution_yr12-13") ; Open a workstation.
+;wks = gsn_open_wks("x11","sst")   ;Open a workstation.
+wks = gsn_open_wks("pdf","./H1_evolution_yr12-13") ; Open a workstation.
 gsn_define_colormap(wks,"NCV_blue_red")
 ;gsn_define_colormap(wks,"grads_rainbow")
 plot = new(8,graphic)
@@ -125,7 +126,7 @@ iyr13Dec=155
 icounter=0
 month=(/"Jan(0)","Apr(0)","Jul(0)","Oct(0)","Jan(1)","Apr(1)","Jul(1)","Oct(1)"/)
 do i=iyr12Jan,iyr13Dec,3
-T@long_name = month(icounter)
+H1@long_name = month(icounter)
 plot(icounter) = gsn_csm_contour_map(wks,H1(i,:,:),res)
 icounter=icounter+1
 end do
@@ -135,7 +136,7 @@ LaNina="La-Nin~H-13V2F35~D~FV-2H3~a"
 
 resP             = True
 resP@gsnMaximize = True
-resP@txString  = "H anomalies evolution during an "+ElNino+" Event in Year 12"
+resP@txString  = "Upper ocean depth anomalies evolution during an "+ElNino+" Event in Year 12"
 resP@gsnPanelLabelBar    = True ; add common colorbar
 ;resP@lbOrientation       = "vertical" ; vertical label bar
 resP@lbLabelFontHeightF  = 0.015              ; make labels smaller

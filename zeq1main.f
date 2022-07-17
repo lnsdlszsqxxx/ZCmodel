@@ -138,8 +138,8 @@ c write history output if conditions are met............................
         iwrite=1
         open(unit=1000,file='ZCCPD_SSTA_34x30_Deg.bin',status='NEW',
      &convert='little_endian',access='direct',recl=34*30*4)
-        open(unit=1001,file='ZCCPD_H_34x30_m.bin',status='NEW',
-     &convert='little_endian',access='direct',recl=34*30*4)
+!        open(unit=1001,file='ZCCPD_H1_34x30_m.bin',status='NEW',
+!     &convert='little_endian',access='direct',recl=34*30*4)
       end if
 
 !Note that the order is different from the model, J (x direction) goes first
@@ -147,7 +147,7 @@ c write history output if conditions are met............................
 !HTAU in a diff order
 !it is 'direct', not 'sequential', easier for plotting
        write(1000,rec=iwrite) ((TO(I,J),J=1, 34),I=30,1,-1)!SSTA
-       write(1001,rec=iwrite) ((H1(I,J),J=1, 34),I=30,1,-1)!depth anom
+!       write(1001,rec=iwrite) ((H1(I,J),J=1, 34),I=30,1,-1)!depth anom
 !       write(1001,rec=iwrite) HTAU !no need to change order
 !       write(1001,rec=iwrite) ((UO(I,J),J=1, 34),I=30,1,-1)
 !       write(1002,rec=iwrite) ((VO(I,J),J=1, 34),I=30,1,-1)
@@ -171,7 +171,7 @@ c if not, loop again
 c time to finish up
 900   CALL WRHIST
       close(1000)
-      close(1001)
+!      close(1001)
  
        WRITE(6,998)
 998    FORMAT(' **************** NORMAL END-OF-JOB ZEQ *************')

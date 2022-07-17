@@ -63,6 +63,7 @@ end  do
 Hbar=1.0
 ;------------------------------------------------------------------------
 
+Hbar=.5
 ;plot 3__________________________________________________________________
 do i=0,4
 T1=varT1(i) ;change T1
@@ -109,8 +110,8 @@ b2=3.0
 
 
 
-;wks = gsn_open_wks("x11","gsun01n")  ; Open an X11 workstation.
-wks = gsn_open_wks("pdf","tanh_Tsub")  ; Open an X11 workstation.
+wks = gsn_open_wks("x11","gsun01n")  ; Open an X11 workstation.
+;wks = gsn_open_wks("pdf","tanh_Tsub")  ; Open an X11 workstation.
 plot = new(6,graphic)
 res=True
 res@gsnDraw   = False  ; do not draw the plot (plots will be paneled)
@@ -137,8 +138,8 @@ textres = True
 textres@lgLabels = (/"ZC model T~B~sub~N~","linearized T~B~sub~N~"/)
 textres@lgLabelFontHeights=0.022
 plot(0) = simple_legend(wks,plot(0),gres,lineres,textres)
-draw(plot(0))
-frame(wks)
+;draw(plot(0))
+;frame(wks)
 ;--------------------------------------------------------
 
 ;plot 2_______________________________________________________
@@ -165,8 +166,8 @@ textres2 = True
 textres2@lgLabels = "Hbar="+varHbar
 textres2@lgLabelFontHeights=0.022
 plot(1) = simple_legend(wks,plot(1),gres2,lineres2,textres2)
-draw(plot(1))
-frame(wks)
+;draw(plot(1))
+;frame(wks)
 ;--------------------------------------------------------------------
 
 ;plot 3_______________________________________________________

@@ -56,11 +56,19 @@
 !checked: using zfsufmain.f and forcfsuf.f gives the same result
 !checked: using wind stress 1960-2011 gives the same result
 !FIXED:
-!Finally, I downloaded NCEP wind stress myself and interplated it on ZC
+!Finally, I downloaded NCEP wind stress myself and interpolated it on ZC
 !HTAU grid. I got the right NINO3 index. Seems that wind
 !stress for GC is not the original wind stress, although it is also from
 !NCEP 
 !2022.7.13 liang
+!
+!confirmed:
+!wind stress for GC (Tao's forcing) is correct. It is the same as the
+!wind stress I downloaded. The first time I interpolated GC forcing to
+!the ZC HTAU grid, I read the GC forcing as 'direct', but it is in
+!sequential, which mean that there are 8-byte record markers. I read the
+!data wrong, so I interpolated the data wrong. 
+!2022.7.17
 
 c wo jia de
 !no need to open file here, use them as follow:

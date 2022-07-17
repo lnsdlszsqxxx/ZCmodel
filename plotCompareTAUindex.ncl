@@ -26,7 +26,8 @@ histFnH="ZCHIST_SSTA_34x30_Deg.bin"
 ;histFnT="ZCHIST_SSTA_34x30_Deg.bin"
 histFnT="ZCFCD_SSTA_34x30_Deg.bin"
 histFnTAUZC="ZCFCD_TAUA_34x30_dyne.bin" ;ZC output
-histFnTAUGC="tauxy_ano_GC.bin" ;wind stress used for forcing GC model
+;histFnTAUGC="tauxy_ano_GC.bin" ;wind stress used for forcing GC model
+histFnTAUGC="tauxy_ano_Tao.bin" ;wind stress used for forcing GC model
 histFnTAUNCEP="tauxy_ano_NCEP.bin" ;wind stress used for forcing ZC model
 histFnTAUxNCEP="~/calculateS/NCEPReanalysis/uflx.sfc.mon.mean.nc"
 histFnTAUyNCEP="~/calculateS/NCEPReanalysis/vflx.sfc.mon.mean.nc";original wind stress I downloaded for ZC forcing
@@ -49,7 +50,7 @@ end do
 ;--------------
 ;read data
 ;--------------
-TAU = fbindirread(histFnTAUZC,0,(/nt,2,ny,nx/),"float")
+;TAU = fbindirread(histFnTAUZC,0,(/nt,2,ny,nx/),"float")
 T=TAU(:,0,:,:)
 T = where(T.eq.0, T@_FillValue, T)
 
@@ -157,8 +158,8 @@ indices_ano=dim_rmvmean_n_Wrap(indices,(/1/))
 
 ;------------------------------------------------------------
 print("plot obs&model nino index")
-;wks = gsn_open_wks("x11","sst")   ;Open a workstation.
-wks = gsn_open_wks("pdf","TAUA_index_62yr_GC_ZC") ;Open a workstation.
+wks = gsn_open_wks("x11","sst")   ;Open a workstation.
+;wks = gsn_open_wks("pdf","TAUA_index_62yr_GC_ZC") ;Open a workstation.
 gsn_define_colormap(wks,"NCV_blue_red")
 ;gsn_define_colormap(wks,"grads_rainbow")
 plot = new(3,graphic)
